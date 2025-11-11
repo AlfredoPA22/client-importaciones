@@ -35,9 +35,12 @@ function CarDetail() {
   const loadImports = async () => {
     try {
       const data = await importsApi.getByCarId(id!);
-      setImports(data);
+      // Asegurarse de que siempre sea un array
+      setImports(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(err);
+      console.error('Error al cargar importaciones:', err);
+      // En caso de error, establecer un array vacío
+      setImports([]);
     }
   };
 
@@ -130,7 +133,7 @@ function CarDetail() {
             </Link>
           </div>
 
-          {imports.length === 0 ? (
+          {!Array.isArray(imports) || imports.length === 0 ? (
             <p className="empty-message">No hay importaciones para este auto</p>
           ) : (
             <div className="imports-list">
@@ -168,7 +171,7 @@ function CarDetail() {
             </div>
           )}
 
-          {imports.length > 0 && (
+          {Array.isArray(imports) && imports.length > 0 && (
             <div className="imports-summary">
               <strong>Total de Costos de Importación: ${imports.reduce((sum, imp) => sum + Object.values(imp.costos_cliente || {}).reduce((s, c) => s + c, 0), 0).toLocaleString()}</strong>
             </div>

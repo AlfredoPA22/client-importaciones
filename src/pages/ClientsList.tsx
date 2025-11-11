@@ -19,10 +19,12 @@ function ClientsList() {
       setLoading(true);
       setError(null);
       const data = await clientsApi.getAll();
-      setClients(data);
+      // Asegurarse de que siempre sea un array
+      setClients(Array.isArray(data) ? data : []);
     } catch (err: any) {
       setError(err.message || 'Error al cargar los clientes');
       console.error(err);
+      setClients([]); // En caso de error, establecer un array vacío
     } finally {
       setLoading(false);
     }

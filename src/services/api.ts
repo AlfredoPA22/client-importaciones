@@ -65,7 +65,8 @@ export const carsApi = {
   getAll: async (): Promise<Car[]> => {
     try {
       const response = await api.get<Car[]>('/cars');
-      return response.data;
+      // Asegurarse de que siempre devolvamos un array
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       handleError(error);
       throw error;
@@ -117,7 +118,8 @@ export const clientsApi = {
   getAll: async (): Promise<Client[]> => {
     try {
       const response = await api.get<Client[]>('/clients');
-      return response.data;
+      // Asegurarse de que siempre devolvamos un array
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       handleError(error);
       throw error;
@@ -169,7 +171,8 @@ export const importsApi = {
   getAll: async (): Promise<Import[]> => {
     try {
       const response = await api.get<Import[]>('/imports');
-      return response.data;
+      // Asegurarse de que siempre devolvamos un array
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       handleError(error);
       throw error;
@@ -189,7 +192,8 @@ export const importsApi = {
   getByCarId: async (carId: string): Promise<Import[]> => {
     try {
       const response = await api.get<Import[]>(`/imports/car/${carId}`);
-      return response.data;
+      // Asegurarse de que siempre devolvamos un array
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       handleError(error);
       throw error;
@@ -199,7 +203,8 @@ export const importsApi = {
   getByClientId: async (clientId: string): Promise<Import[]> => {
     try {
       const response = await api.get<Import[]>(`/imports/client/${clientId}`);
-      return response.data;
+      // Asegurarse de que siempre devolvamos un array
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       handleError(error);
       throw error;
@@ -261,7 +266,8 @@ export const shareApi = {
   getShares: async (importId: string): Promise<ShareToken[]> => {
     try {
       const response = await api.get<ShareToken[]>(`/imports/${importId}/share`);
-      return response.data;
+      // Asegurarse de que siempre devolvamos un array
+      return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
       handleError(error);
       throw error;

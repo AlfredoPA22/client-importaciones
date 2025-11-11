@@ -38,9 +38,12 @@ function ImportDetail() {
   const loadShares = async () => {
     try {
       const tokens = await shareApi.getShares(id!);
-      setShareTokens(tokens);
+      // Asegurarse de que siempre sea un array
+      setShareTokens(Array.isArray(tokens) ? tokens : []);
     } catch (err) {
       console.error('Error al cargar tokens de compartir:', err);
+      // En caso de error, establecer un array vacío
+      setShareTokens([]);
     }
   };
 
@@ -318,7 +321,7 @@ function ImportDetail() {
             </div>
           )}
 
-          {shareTokens.length > 0 && (
+          {Array.isArray(shareTokens) && shareTokens.length > 0 && (
             <div className="share-tokens-list">
               <h3>Tokens Activos</h3>
               {shareTokens.map((token) => (

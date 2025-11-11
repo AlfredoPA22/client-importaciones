@@ -26,24 +26,33 @@ function ImportsList() {
         clientsApi.getAll(),
       ]);
 
-      setImports(importsData);
+      // Asegurarse de que siempre sean arrays
+      setImports(Array.isArray(importsData) ? importsData : []);
       
       // Crear un mapa de autos por ID
       const carsMap: Record<string, Car> = {};
-      carsData.forEach(car => {
-        carsMap[car.id] = car;
-      });
+      if (Array.isArray(carsData)) {
+        carsData.forEach(car => {
+          carsMap[car.id] = car;
+        });
+      }
       setCars(carsMap);
 
       // Crear un mapa de clientes por ID
       const clientsMap: Record<string, Client> = {};
-      clientsData.forEach(client => {
-        clientsMap[client.id] = client;
-      });
+      if (Array.isArray(clientsData)) {
+        clientsData.forEach(client => {
+          clientsMap[client.id] = client;
+        });
+      }
       setClients(clientsMap);
     } catch (err: any) {
       setError(err.message || 'Error al cargar las importaciones');
       console.error(err);
+      // En caso de error, establecer arrays vacíos
+      setImports([]);
+      setCars({});
+      setClients({});
     } finally {
       setLoading(false);
     }
@@ -92,7 +101,7 @@ function ImportsList() {
         </button>
       </div>
 
-      {imports.length === 0 ? (
+      {!Array.isArray(imports) || imports.length === 0 ? (
         <div className="empty-state">
           <p>No hay importaciones registradas</p>
           <button className="btn btn-primary" onClick={() => navigate('/imports/new')}>

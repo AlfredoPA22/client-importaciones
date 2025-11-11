@@ -35,9 +35,12 @@ function ClientDetail() {
   const loadImports = async () => {
     try {
       const data = await importsApi.getByClientId(id!);
-      setImports(data);
+      // Asegurarse de que siempre sea un array
+      setImports(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(err);
+      console.error('Error al cargar importaciones:', err);
+      // En caso de error, establecer un array vacío
+      setImports([]);
     }
   };
 
@@ -129,7 +132,7 @@ function ClientDetail() {
             </Link>
           </div>
 
-          {imports.length === 0 ? (
+          {!Array.isArray(imports) || imports.length === 0 ? (
             <p className="empty-message">No hay importaciones para este cliente</p>
           ) : (
             <div className="imports-list">

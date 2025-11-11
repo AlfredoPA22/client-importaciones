@@ -19,10 +19,12 @@ function CarsList() {
       setLoading(true);
       setError(null);
       const data = await carsApi.getAll();
-      setCars(data);
+      // Asegurarse de que siempre sea un array
+      setCars(Array.isArray(data) ? data : []);
     } catch (err) {
       setError('Error al cargar los autos');
       console.error(err);
+      setCars([]); // En caso de error, establecer un array vacío
     } finally {
       setLoading(false);
     }
