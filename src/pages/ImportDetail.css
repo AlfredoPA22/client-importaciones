@@ -211,6 +211,10 @@
   padding: 2rem;
 }
 
+.images-section {
+  margin-top: 1rem;
+}
+
 .share-url-container {
   background: var(--bg-color);
   padding: 1.5rem;

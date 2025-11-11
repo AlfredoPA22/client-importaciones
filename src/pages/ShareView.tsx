@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { shareApi } from '../services/api';
 import type { PublicImport } from '../types';
+import StatusTimeline from '../components/StatusTimeline';
+import DaysCounter from '../components/DaysCounter';
+import ImageGallery from '../components/ImageGallery';
 import './ShareView.css';
 
 function ShareView() {
@@ -94,6 +97,21 @@ function ShareView() {
               </p>
             </div>
           </div>
+
+          {importData.fecha_tentativa_entrega && (
+            <div className="share-card">
+              <DaysCounter fechaTentativaEntrega={importData.fecha_tentativa_entrega} />
+            </div>
+          )}
+
+          {importData.status_history && importData.status_history.length > 0 && (
+            <div className="share-card">
+              <StatusTimeline
+                history={importData.status_history}
+                currentStatus={importData.status}
+              />
+            </div>
+          )}
 
           {importData.car && (
             <div className="share-card">
@@ -188,6 +206,16 @@ function ShareView() {
             <div className="share-card">
               <h2>Notas</h2>
               <p className="notes-text">{importData.notes}</p>
+            </div>
+          )}
+
+          {importData.images && importData.images.length > 0 && (
+            <div className="share-card">
+              <h2>Imágenes de la Importación</h2>
+              <ImageGallery
+                images={importData.images}
+                readOnly={true}
+              />
             </div>
           )}
 

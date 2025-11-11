@@ -12,6 +12,9 @@ import type {
   ShareToken,
   ShareCreate,
   PublicImport,
+  ImportHistory,
+  ImageUploadResponse,
+  ImageDeleteResponse,
 } from '../types';
 
 // Usar proxy de Vite en desarrollo para evitar problemas de CORS
@@ -37,6 +40,19 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// URL base del servidor para construir URLs completas de imágenes
+export const getServerBaseUrl = (): string => {
+  const isDev = import.meta.env.DEV || import.meta.env.MODE === 'development';
+  
+  if (isDev) {
+    // En desarrollo, usar la URL del backend directamente
+    return 'http://127.0.0.1:8000';
+  }
+  
+  // En producción, usar la variable de entorno o el valor por defecto
+  return import.meta.env.VITE_API_URL || 'http://localhost:8000';
+};
 
 // Error handler
 interface AxiosErrorType {
@@ -341,6 +357,50 @@ export const importsApi = {
   delete: async (id: string): Promise<void> => {
     try {
       await api.delete(`/imports/${id}`);
+    } catch (error) {
+      handleError(error);
+      throw error;
+    }
+  },
+
+  getHistory: async (id: string): Promise<ImportHistory> => {
+    try {
+      const response = await api.get<ImportHistory>(`/imports/${id}/history`);
+      return response.data;
+    } catch (error) {
+      handleError(error);
+      throw error;
+    }
+  },
+
+  uploadImage: async (id: string, file: File): Promise<ImageUploadResponse> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Para multipart/form-data, necesitamos eliminar el Content-Type por defecto
+      // Crear una nueva instancia de axios para esta petición sin el header por defecto
+      const uploadApi = axios.create({
+        baseURL: API_BASE_URL,
+        // No establecer headers por defecto, axios detectará FormData y establecerá
+        // Content-Type automáticamente con el boundary correcto
+      });
+      
+      const response = await uploadApi.post<ImageUploadResponse>(
+        `/imports/${id}/images`,
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      handleError(error);
+      throw error;
+    }
+  },
+
+  deleteImage: async (id: string, filename: string): Promise<ImageDeleteResponse> => {
+    try {
+      const response = await api.delete<ImageDeleteResponse>(`/imports/${id}/images/${filename}`);
+      return response.data;
     } catch (error) {
       handleError(error);
       throw error;

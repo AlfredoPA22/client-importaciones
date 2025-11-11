@@ -67,6 +67,12 @@ export type ImportStatus =
   | 'EN_ADUANA' 
   | 'ENTREGADO';
 
+export interface StatusHistoryEntry {
+  status: ImportStatus;
+  changed_at: string;
+  notes?: string;
+}
+
 export interface Import {
   id: string;
   car_id: string;
@@ -75,6 +81,9 @@ export interface Import {
   costos_cliente: Record<string, number>;
   notes?: string;
   status: ImportStatus;
+  fecha_tentativa_entrega?: string;
+  status_history?: StatusHistoryEntry[];
+  images?: string[];
   created_at: string;
   updated_at: string;
   car?: Car;
@@ -88,13 +97,17 @@ export interface ImportCreate {
   costos_cliente?: Record<string, number>;
   notes?: string;
   status?: ImportStatus;
+  fecha_tentativa_entrega?: string;
 }
 
 export interface ImportUpdate {
   costos_reales?: Record<string, number>;
   costos_cliente?: Record<string, number>;
+  costos_reales_to_delete?: string[];
+  costos_cliente_to_delete?: string[];
   notes?: string;
   status?: ImportStatus;
+  fecha_tentativa_entrega?: string;
 }
 
 // Share Types
@@ -117,8 +130,28 @@ export interface PublicImport {
   costos_cliente: Record<string, number>; // Solo costos_cliente, NO costos_reales
   notes?: string;
   status: ImportStatus;
+  fecha_tentativa_entrega?: string;
+  status_history?: StatusHistoryEntry[];
+  images?: string[];
   created_at: string;
   updated_at: string;
   car?: Car;
   client?: Client;
+}
+
+export interface ImportHistory {
+  history: StatusHistoryEntry[];
+  current_status: ImportStatus;
+  fecha_tentativa_entrega?: string;
+}
+
+// Image Types
+export interface ImageUploadResponse {
+  message: string;
+  image_url: string;
+  filename: string;
+}
+
+export interface ImageDeleteResponse {
+  message: string;
 }

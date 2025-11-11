@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { importsApi, shareApi } from '../services/api';
-import type { Import, ShareToken } from '../types';
+import type { Import, ShareToken, StatusHistoryEntry } from '../types';
+import StatusTimeline from '../components/StatusTimeline';
+import DaysCounter from '../components/DaysCounter';
+import ImageUploader from '../components/ImageUploader';
+import ImageGallery from '../components/ImageGallery';
 import './ImportDetail.css';
 
 function ImportDetail() {
@@ -9,8 +13,10 @@ function ImportDetail() {
   const navigate = useNavigate();
   const [importData, setImportData] = useState<Import | null>(null);
   const [shareTokens, setShareTokens] = useState<ShareToken[]>([]);
+  const [statusHistory, setStatusHistory] = useState<StatusHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingShare, setLoadingShare] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
   const [newShareUrl, setNewShareUrl] = useState<string | null>(null);
@@ -19,6 +25,7 @@ function ImportDetail() {
     if (id) {
       loadImport();
       loadShares();
+      loadHistory();
     }
   }, [id]);
 
@@ -27,11 +34,30 @@ function ImportDetail() {
       setLoading(true);
       const data = await importsApi.getById(id!);
       setImportData(data);
+      // Si el historial viene en la respuesta, usarlo
+      if (data.status_history && data.status_history.length > 0) {
+        setStatusHistory(data.status_history);
+      }
     } catch (err: any) {
       setError(err.message || 'Error al cargar la importación');
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadHistory = async () => {
+    try {
+      setLoadingHistory(true);
+      const historyData = await importsApi.getHistory(id!);
+      if (historyData.history && historyData.history.length > 0) {
+        setStatusHistory(historyData.history);
+      }
+    } catch (err: any) {
+      console.error('Error al cargar historial:', err);
+      // Si hay error, intentar usar el historial que venga en importData
+    } finally {
+      setLoadingHistory(false);
     }
   };
 
@@ -91,6 +117,26 @@ function ImportDetail() {
     } catch (err: any) {
       alert(err.message || 'Error al desactivar token');
       console.error(err);
+    }
+  };
+
+  const handleUploadImage = async (file: File) => {
+    try {
+      await importsApi.uploadImage(id!, file);
+      // Recargar la importación para obtener las imágenes actualizadas
+      await loadImport();
+    } catch (err: any) {
+      throw new Error(err.message || 'Error al subir la imagen');
+    }
+  };
+
+  const handleDeleteImage = async (filename: string) => {
+    try {
+      await importsApi.deleteImage(id!, filename);
+      // Recargar la importación para obtener las imágenes actualizadas
+      await loadImport();
+    } catch (err: any) {
+      throw new Error(err.message || 'Error al eliminar la imagen');
     }
   };
 
@@ -176,6 +222,21 @@ function ImportDetail() {
             )}
           </div>
         </div>
+
+        {importData.fecha_tentativa_entrega && (
+          <div className="detail-card">
+            <DaysCounter fechaTentativaEntrega={importData.fecha_tentativa_entrega} />
+          </div>
+        )}
+
+        {(statusHistory.length > 0 || importData.status_history) && (
+          <div className="detail-card">
+            <StatusTimeline
+              history={statusHistory.length > 0 ? statusHistory : (importData.status_history || [])}
+              currentStatus={importData.status}
+            />
+          </div>
+        )}
 
         {importData.car && (
           <div className="detail-card">
@@ -281,6 +342,18 @@ function ImportDetail() {
               </div>
             </>
           )}
+        </div>
+
+        <div className="detail-card">
+          <h2>Imágenes de la Importación</h2>
+          <div className="images-section">
+            <ImageUploader onUpload={handleUploadImage} />
+            <ImageGallery
+              images={importData.images || []}
+              onDelete={handleDeleteImage}
+              readOnly={false}
+            />
+          </div>
         </div>
 
         <div className="detail-card">

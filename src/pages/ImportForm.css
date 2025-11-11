@@ -185,6 +185,13 @@
   opacity: 0.7;
 }
 
+.form-help {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
 .cost-field-group {
   display: flex;
   flex-direction: column;
