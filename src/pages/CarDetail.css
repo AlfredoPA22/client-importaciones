@@ -166,6 +166,19 @@
   padding: 2rem;
 }
 
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  border: 1px solid #fca5a5;
+}
+
+.error-message p {
+  margin: 0 0 0.5rem 0;
+}
+
 .btn-sm {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;

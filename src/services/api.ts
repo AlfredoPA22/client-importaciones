@@ -44,6 +44,7 @@ interface AxiosErrorType {
     data?: {
       detail?: string;
     };
+    status?: number;
   };
   request?: unknown;
   message?: string;
@@ -191,10 +192,40 @@ export const importsApi = {
 
   getByCarId: async (carId: string): Promise<Import[]> => {
     try {
-      const response = await api.get<Import[]>(`/imports/car/${carId}`);
+      const response = await api.get(`/imports/car/${carId}`);
+      console.log('Response from getByCarId:', response);
+      console.log('Response data:', response.data);
+      console.log('Is array?', Array.isArray(response.data));
+      
       // Asegurarse de que siempre devolvamos un array
-      return Array.isArray(response.data) ? response.data : [];
+      if (Array.isArray(response.data)) {
+        return response.data;
+      }
+      
+      // Si la respuesta es un objeto, intentar extraer un array
+      if (response.data && typeof response.data === 'object' && response.data !== null) {
+        console.warn('Response is not an array, attempting to convert:', response.data);
+        const data = response.data as Record<string, unknown>;
+        // Podría ser un objeto con una propiedad que contiene el array
+        if ('data' in data && Array.isArray(data.data)) {
+          return data.data as Import[];
+        }
+        if ('imports' in data && Array.isArray(data.imports)) {
+          return data.imports as Import[];
+        }
+      }
+      
+      console.warn('Could not parse response as array, returning empty array');
+      return [];
     } catch (error) {
+      console.error('Error in getByCarId:', error);
+      const axiosError = error as AxiosErrorType;
+      // Si es un 404, puede ser que no haya importaciones (no es un error crítico)
+      if (axiosError.response && 'status' in axiosError.response && axiosError.response.status === 404) {
+        console.log('No imports found for car (404), returning empty array');
+        return [];
+      }
+      // Para otros errores, lanzar el error
       handleError(error);
       throw error;
     }
@@ -202,10 +233,35 @@ export const importsApi = {
 
   getByClientId: async (clientId: string): Promise<Import[]> => {
     try {
-      const response = await api.get<Import[]>(`/imports/client/${clientId}`);
+      const response = await api.get(`/imports/client/${clientId}`);
+      console.log('Response from getByClientId:', response);
+      
       // Asegurarse de que siempre devolvamos un array
-      return Array.isArray(response.data) ? response.data : [];
+      if (Array.isArray(response.data)) {
+        return response.data;
+      }
+      
+      // Si la respuesta es un objeto, intentar extraer un array
+      if (response.data && typeof response.data === 'object' && response.data !== null) {
+        const data = response.data as Record<string, unknown>;
+        if ('data' in data && Array.isArray(data.data)) {
+          return data.data as Import[];
+        }
+        if ('imports' in data && Array.isArray(data.imports)) {
+          return data.imports as Import[];
+        }
+      }
+      
+      return [];
     } catch (error) {
+      console.error('Error in getByClientId:', error);
+      const axiosError = error as AxiosErrorType;
+      // Si es un 404, puede ser que no haya importaciones (no es un error crítico)
+      if (axiosError.response && axiosError.response.status === 404) {
+        console.log('No imports found for client (404), returning empty array');
+        return [];
+      }
+      // Para otros errores, lanzar el error
       handleError(error);
       throw error;
     }

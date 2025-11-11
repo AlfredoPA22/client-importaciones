@@ -10,7 +10,9 @@ function CarDetail() {
   const [car, setCar] = useState<Car | null>(null);
   const [imports, setImports] = useState<Import[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingImports, setLoadingImports] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [importsError, setImportsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -34,13 +36,36 @@ function CarDetail() {
 
   const loadImports = async () => {
     try {
+      setLoadingImports(true);
+      setImportsError(null);
+      console.log('Cargando importaciones para auto ID:', id);
       const data = await importsApi.getByCarId(id!);
+      console.log('Importaciones recibidas:', data);
+      console.log('Tipo de datos:', typeof data);
+      console.log('Es array?', Array.isArray(data));
+      
       // Asegurarse de que siempre sea un array
-      setImports(Array.isArray(data) ? data : []);
-    } catch (err) {
+      const importsArray = Array.isArray(data) ? data : [];
+      console.log('Importaciones procesadas (array):', importsArray);
+      console.log('Cantidad de importaciones:', importsArray.length);
+      
+      setImports(importsArray);
+      
+      // Si no hay importaciones, no es un error
+      if (importsArray.length === 0) {
+        console.log('No se encontraron importaciones para este auto');
+      }
+    } catch (err: any) {
       console.error('Error al cargar importaciones:', err);
+      // Solo mostrar error si no es un 404 (que significa que no hay importaciones)
+      if (err?.response?.status !== 404) {
+        const errorMessage = err?.message || 'Error al cargar las importaciones';
+        setImportsError(errorMessage);
+      }
       // En caso de error, establecer un array vacío
       setImports([]);
+    } finally {
+      setLoadingImports(false);
     }
   };
 
@@ -128,53 +153,101 @@ function CarDetail() {
         <div className="detail-card">
           <div className="card-header">
             <h2>Importaciones</h2>
-            <Link to={`/imports/new?car_id=${id}`} className="btn btn-primary btn-sm">
-              Nueva Importación
-            </Link>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button 
+                className="btn btn-outline btn-sm" 
+                onClick={loadImports}
+                disabled={loadingImports}
+              >
+                {loadingImports ? 'Cargando...' : 'Actualizar'}
+              </button>
+              <Link to={`/imports/new?car_id=${id}`} className="btn btn-primary btn-sm">
+                Nueva Importación
+              </Link>
+            </div>
           </div>
 
-          {!Array.isArray(imports) || imports.length === 0 ? (
-            <p className="empty-message">No hay importaciones para este auto</p>
+          {loadingImports ? (
+            <p className="empty-message">Cargando importaciones...</p>
+          ) : importsError ? (
+            <div className="error-message">
+              <p>Error al cargar importaciones: {importsError}</p>
+              <button 
+                className="btn btn-outline btn-sm" 
+                onClick={loadImports}
+                style={{ marginTop: '0.5rem' }}
+              >
+                Reintentar
+              </button>
+            </div>
+          ) : !Array.isArray(imports) ? (
+            <div className="error-message">
+              <p>Error: Los datos recibidos no son un array válido</p>
+              <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                Tipo recibido: {typeof imports}
+              </p>
+              <button 
+                className="btn btn-outline btn-sm" 
+                onClick={loadImports}
+                style={{ marginTop: '0.5rem' }}
+              >
+                Reintentar
+              </button>
+            </div>
+          ) : imports.length === 0 ? (
+            <div>
+              <p className="empty-message">No hay importaciones para este auto</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.5rem', textAlign: 'center' }}>
+                Puedes crear una nueva importación usando el botón arriba
+              </p>
+            </div>
           ) : (
-            <div className="imports-list">
-              {imports.map((imp) => {
-                const importCosts = Object.values(imp.costos_cliente || {}).reduce((sum, cost) => sum + cost, 0);
-                return (
-                  <div key={imp.id} className="import-item">
-                    <div className="import-header">
-                      <Link to={`/imports/${imp.id}`} className="import-link">
-                        Importación #{imp.id.slice(-6)}
-                      </Link>
-                      <span className={`status-badge status-${imp.status.toLowerCase().replace('_', '-')}`}>
-                        {imp.status.replace('_', ' ')}
-                      </span>
-                    </div>
-                    {imp.client && (
-                      <div className="import-info">
-                        <span className="label">Cliente:</span>
-                        <span className="value">{imp.client.name}</span>
+            <>
+              <div className="imports-list">
+                {imports.map((imp, index) => {
+                  console.log(`Renderizando importación ${index}:`, imp);
+                  const importCosts = Object.values(imp.costos_cliente || {}).reduce((sum, cost) => sum + cost, 0);
+                  return (
+                    <div key={imp.id || `import-${index}`} className="import-item">
+                      <div className="import-header">
+                        <Link to={`/imports/${imp.id}`} className="import-link">
+                          Importación #{imp.id ? imp.id.slice(-6) : 'N/A'}
+                        </Link>
+                        <span className={`status-badge status-${imp.status?.toLowerCase().replace('_', '-') || 'en-proceso'}`}>
+                          {imp.status ? imp.status.replace('_', ' ') : 'EN_PROCESO'}
+                        </span>
                       </div>
-                    )}
-                    <div className="import-info">
-                      <span className="label">Costo Total Cliente:</span>
-                      <span className="value">${importCosts.toLocaleString()}</span>
+                      {imp.client ? (
+                        <div className="import-info">
+                          <span className="label">Cliente:</span>
+                          <span className="value">{imp.client.name}</span>
+                        </div>
+                      ) : imp.client_id ? (
+                        <div className="import-info">
+                          <span className="label">Cliente ID:</span>
+                          <span className="value">{imp.client_id}</span>
+                        </div>
+                      ) : null}
+                      <div className="import-info">
+                        <span className="label">Costo Total Cliente:</span>
+                        <span className="value">${importCosts.toLocaleString()}</span>
+                      </div>
+                      {imp.notes && (
+                        <p className="import-notes">{imp.notes}</p>
+                      )}
+                      {imp.created_at && (
+                        <div className="import-date">
+                          Creado: {new Date(imp.created_at).toLocaleDateString()}
+                        </div>
+                      )}
                     </div>
-                    {imp.notes && (
-                      <p className="import-notes">{imp.notes}</p>
-                    )}
-                    <div className="import-date">
-                      Creado: {new Date(imp.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {Array.isArray(imports) && imports.length > 0 && (
-            <div className="imports-summary">
-              <strong>Total de Costos de Importación: ${imports.reduce((sum, imp) => sum + Object.values(imp.costos_cliente || {}).reduce((s, c) => s + c, 0), 0).toLocaleString()}</strong>
-            </div>
+                  );
+                })}
+              </div>
+              <div className="imports-summary">
+                <strong>Total de Costos de Importación: ${imports.reduce((sum, imp) => sum + Object.values(imp.costos_cliente || {}).reduce((s, c) => s + c, 0), 0).toLocaleString()}</strong>
+              </div>
+            </>
           )}
         </div>
       </div>
