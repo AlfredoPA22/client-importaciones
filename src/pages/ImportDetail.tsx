@@ -16,7 +16,7 @@ function ImportDetail() {
   const [statusHistory, setStatusHistory] = useState<StatusHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingShare, setLoadingShare] = useState(false);
-  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [, setLoadingHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
   const [newShareUrl, setNewShareUrl] = useState<string | null>(null);

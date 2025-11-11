@@ -72,7 +72,6 @@ export default function ImageGallery({ images, onDelete, readOnly = false }: Ima
       <div className="image-gallery">
         {images.map((imagePath, index) => {
           const imageUrl = getImageUrl(imagePath);
-          const filename = getFilenameFromPath(imagePath);
           const isDeleting = deleting === imagePath;
 
           return (
