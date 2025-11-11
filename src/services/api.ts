@@ -193,26 +193,68 @@ export const importsApi = {
   getByCarId: async (carId: string): Promise<Import[]> => {
     try {
       const response = await api.get(`/imports/car/${carId}`);
-      console.log('Response from getByCarId:', response);
+      console.log('=== getByCarId DEBUG ===');
+      console.log('Full response:', response);
       console.log('Response data:', response.data);
+      console.log('Response data type:', typeof response.data);
       console.log('Is array?', Array.isArray(response.data));
+      console.log('Response data keys:', response.data && typeof response.data === 'object' ? Object.keys(response.data) : 'N/A');
       
-      // Asegurarse de que siempre devolvamos un array
-      if (Array.isArray(response.data)) {
-        return response.data;
+      const dataToProcess = response.data;
+      
+      // Si es un array, devolverlo directamente
+      if (Array.isArray(dataToProcess)) {
+        console.log('Returning array directly, length:', dataToProcess.length);
+        return dataToProcess;
       }
       
-      // Si la respuesta es un objeto, intentar extraer un array
-      if (response.data && typeof response.data === 'object' && response.data !== null) {
-        console.warn('Response is not an array, attempting to convert:', response.data);
-        const data = response.data as Record<string, unknown>;
-        // Podría ser un objeto con una propiedad que contiene el array
+      // Si es un objeto único de importación, convertirlo a array
+      if (dataToProcess && typeof dataToProcess === 'object' && dataToProcess !== null) {
+        const data = dataToProcess as Record<string, unknown>;
+        
+        // Primero verificar si hay una propiedad que contenga el array
         if ('data' in data && Array.isArray(data.data)) {
+          console.log('Found data property with array');
           return data.data as Import[];
         }
         if ('imports' in data && Array.isArray(data.imports)) {
+          console.log('Found imports property with array');
           return data.imports as Import[];
         }
+        if ('items' in data && Array.isArray(data.items)) {
+          console.log('Found items property with array');
+          return data.items as Import[];
+        }
+        
+        // Verificar si es un objeto de importación directamente (tiene id, car_id y client_id)
+        // También verificar si tiene costos_reales o costos_cliente para mayor certeza
+        const hasId = 'id' in data && typeof data.id === 'string';
+        const hasCarId = 'car_id' in data && typeof data.car_id === 'string';
+        const hasClientId = 'client_id' in data && typeof data.client_id === 'string';
+        const hasCostos = ('costos_reales' in data || 'costos_cliente' in data);
+        
+        if (hasId && hasCarId && hasClientId) {
+          console.log('✓ Single import object detected');
+          console.log('  - Has id:', hasId, data.id);
+          console.log('  - Has car_id:', hasCarId, data.car_id);
+          console.log('  - Has client_id:', hasClientId, data.client_id);
+          console.log('  - Has costos:', hasCostos);
+          console.log('  - All keys:', Object.keys(data));
+          
+          // Convertir de forma segura a array
+          const importObj = data as unknown as Import;
+          console.log('✓ Converted to Import object, returning as array with 1 element');
+          return [importObj];
+        }
+        
+        // Si no coincide con ninguna estructura conocida, loggear información de debug
+        console.warn('⚠ Object detected but does not match import structure');
+        console.warn('  - Object keys:', Object.keys(data));
+        console.warn('  - Has id?', hasId);
+        console.warn('  - Has car_id?', hasCarId);
+        console.warn('  - Has client_id?', hasClientId);
+        console.warn('  - Has costos?', hasCostos);
+        console.warn('  - Full object:', JSON.stringify(data, null, 2).substring(0, 500));
       }
       
       console.warn('Could not parse response as array, returning empty array');
@@ -236,14 +278,23 @@ export const importsApi = {
       const response = await api.get(`/imports/client/${clientId}`);
       console.log('Response from getByClientId:', response);
       
-      // Asegurarse de que siempre devolvamos un array
+      // Si es un array, devolverlo directamente
       if (Array.isArray(response.data)) {
         return response.data;
       }
       
-      // Si la respuesta es un objeto, intentar extraer un array
+      // Si es un objeto único de importación, convertirlo a array
       if (response.data && typeof response.data === 'object' && response.data !== null) {
         const data = response.data as Record<string, unknown>;
+        
+        // Verificar si es un objeto de importación (tiene id y client_id)
+        if ('id' in data && 'client_id' in data && 'car_id' in data) {
+          console.log('Single import object detected, converting to array');
+          // Convertir de forma segura
+          return [data as unknown as Import];
+        }
+        
+        // Si es un objeto con una propiedad que contiene el array
         if ('data' in data && Array.isArray(data.data)) {
           return data.data as Import[];
         }

@@ -21,6 +21,17 @@ function CarDetail() {
     }
   }, [id]);
 
+  // Debug: Log cuando cambie el estado de imports
+  useEffect(() => {
+    console.log('=== CarDetail: Estado imports cambió ===');
+    console.log('imports:', imports);
+    console.log('imports.length:', imports.length);
+    console.log('Array.isArray(imports):', Array.isArray(imports));
+    if (imports.length > 0) {
+      console.log('Primera importación:', imports[0]);
+    }
+  }, [imports]);
+
   const loadCar = async () => {
     try {
       setLoading(true);
@@ -38,25 +49,40 @@ function CarDetail() {
     try {
       setLoadingImports(true);
       setImportsError(null);
+      console.log('=== CarDetail.loadImports ===');
       console.log('Cargando importaciones para auto ID:', id);
+      
       const data = await importsApi.getByCarId(id!);
-      console.log('Importaciones recibidas:', data);
-      console.log('Tipo de datos:', typeof data);
+      
+      console.log('=== CarDetail: Datos recibidos del API ===');
+      console.log('Data:', data);
+      console.log('Tipo:', typeof data);
       console.log('Es array?', Array.isArray(data));
+      console.log('Length:', Array.isArray(data) ? data.length : 'N/A');
       
       // Asegurarse de que siempre sea un array
       const importsArray = Array.isArray(data) ? data : [];
       console.log('Importaciones procesadas (array):', importsArray);
       console.log('Cantidad de importaciones:', importsArray.length);
       
+      if (importsArray.length > 0) {
+        console.log('Primera importación:', importsArray[0]);
+        console.log('ID de primera importación:', importsArray[0]?.id);
+      }
+      
       setImports(importsArray);
+      console.log('Estado imports actualizado con:', importsArray.length, 'elementos');
       
       // Si no hay importaciones, no es un error
       if (importsArray.length === 0) {
-        console.log('No se encontraron importaciones para este auto');
+        console.log('⚠️ No se encontraron importaciones para este auto');
+      } else {
+        console.log('✓ Importaciones cargadas correctamente');
       }
     } catch (err: any) {
-      console.error('Error al cargar importaciones:', err);
+      console.error('❌ Error al cargar importaciones:', err);
+      console.error('Error response:', err?.response);
+      console.error('Error status:', err?.response?.status);
       // Solo mostrar error si no es un 404 (que significa que no hay importaciones)
       if (err?.response?.status !== 404) {
         const errorMessage = err?.message || 'Error al cargar las importaciones';
@@ -66,6 +92,7 @@ function CarDetail() {
       setImports([]);
     } finally {
       setLoadingImports(false);
+      console.log('Loading imports completado');
     }
   };
 
@@ -200,6 +227,11 @@ function CarDetail() {
               <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.5rem', textAlign: 'center' }}>
                 Puedes crear una nueva importación usando el botón arriba
               </p>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.5rem', textAlign: 'center' }}>
+                <p>Debug: imports.length = {imports.length}</p>
+                <p>Debug: imports es array? {Array.isArray(imports) ? 'Sí' : 'No'}</p>
+                <p>Debug: imports = {JSON.stringify(imports, null, 2)}</p>
+              </div>
             </div>
           ) : (
             <>
