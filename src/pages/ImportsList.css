@@ -1,0 +1,120 @@
+.imports-list {
+  width: 100%;
+}
+
+.imports-table-container {
+  background: var(--card-bg);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+
+.imports-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.imports-table thead {
+  background: var(--bg-color);
+}
+
+.imports-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.imports-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.imports-table tbody tr:hover {
+  background: var(--bg-color);
+}
+
+.car-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.car-link:hover {
+  text-decoration: underline;
+}
+
+.text-muted {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.status-en-proceso {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-en-transito {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-en-taller {
+  background: #fce7f3;
+  color: #9f1239;
+}
+
+.status-en-aduana {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.status-entregado {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.client-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.client-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .imports-table-container {
+    overflow-x: scroll;
+  }
+
+  .imports-table {
+    min-width: 800px;
+  }
+
+  .table-actions {
+    flex-direction: column;
+  }
+
+  .table-actions .btn {
+    width: 100%;
+  }
+}
+

@@ -1,0 +1,246 @@
+.import-form {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.costs-section {
+  background: var(--bg-color);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.costs-section h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.costs-description {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.costs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.costs-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--card-bg);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color);
+}
+
+.cost-header-name {
+  font-weight: 600;
+}
+
+.cost-header-real {
+  font-weight: 600;
+  color: var(--danger-color);
+  position: relative;
+}
+
+.cost-header-real::after {
+  content: '(Solo Admin)';
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.cost-header-client {
+  font-weight: 600;
+  color: var(--primary-color);
+  position: relative;
+}
+
+.cost-header-client::after {
+  content: '(Visible Cliente)';
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.cost-header-actions {
+  text-align: center;
+}
+
+.cost-entry-unified {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 0.5rem;
+  align-items: start;
+  padding: 0.5rem;
+  background: var(--card-bg);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  transition: box-shadow 0.2s;
+}
+
+.cost-entry-unified:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cost-input-name {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.cost-input-real {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  width: 100%;
+  border-left: 3px solid var(--danger-color);
+}
+
+.cost-input-client {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  width: 100%;
+  border-left: 3px solid var(--primary-color);
+}
+
+.cost-input-name:focus,
+.cost-input-real:focus,
+.cost-input-client:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.add-cost-btn {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.costs-totals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.cost-total-real {
+  padding: 1rem;
+  background: #fee2e2;
+  border: 2px solid var(--danger-color);
+  border-radius: 0.5rem;
+  text-align: center;
+  font-size: 1.125rem;
+  color: #991b1b;
+}
+
+.cost-total-client {
+  padding: 1rem;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-size: 1.125rem;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-group select:disabled {
+  background: var(--bg-color);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.cost-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cost-label-mobile {
+  display: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.cost-label-real {
+  color: var(--danger-color);
+}
+
+.cost-label-client {
+  color: var(--primary-color);
+}
+
+.cost-remove-btn {
+  align-self: flex-end;
+}
+
+@media (max-width: 768px) {
+  .costs-header {
+    display: none;
+  }
+
+  .cost-entry-unified {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+  }
+
+  .cost-label-mobile {
+    display: block;
+  }
+
+  .cost-input-name,
+  .cost-input-real,
+  .cost-input-client {
+    width: 100%;
+  }
+
+  .cost-remove-btn {
+    align-self: stretch;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .costs-totals {
+    grid-template-columns: 1fr;
+  }
+}
