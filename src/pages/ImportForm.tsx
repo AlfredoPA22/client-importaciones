@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { importsApi, carsApi, clientsApi } from '../services/api';
-import type { ImportCreate, ImportUpdate, Car, Client, ImportStatus } from '../types';
+import type { ImportCreate, ImportUpdate, Car, Client } from '../types';
 import './ImportForm.css';
 
 interface CostEntry {

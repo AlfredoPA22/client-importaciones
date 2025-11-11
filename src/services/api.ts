@@ -16,7 +16,20 @@ import type {
 
 // Usar proxy de Vite en desarrollo para evitar problemas de CORS
 // El proxy está configurado en vite.config.ts para redirigir /api a http://127.0.0.1:8000
-const API_BASE_URL = import.meta.env.DEV ? '/api' : import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// En Vite, import.meta.env es siempre disponible en tiempo de compilación
+// Los tipos están definidos en vite-env.d.ts mediante la referencia a vite/client
+const API_BASE_URL = (() => {
+  // Vite provee import.meta.env con tipos definidos en vite/client
+  // En desarrollo, MODE será 'development' y DEV será true
+  const isDev = import.meta.env.DEV || import.meta.env.MODE === 'development';
+  
+  if (isDev) {
+    return '/api';
+  }
+  
+  // En producción, usar la variable de entorno o el valor por defecto
+  return import.meta.env.VITE_API_URL || 'http://localhost:8000';
+})();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -26,13 +39,24 @@ const api = axios.create({
 });
 
 // Error handler
-const handleError = (error: any) => {
-  if (error.response) {
-    throw new Error(error.response.data?.detail || 'Error en la solicitud');
-  } else if (error.request) {
+interface AxiosErrorType {
+  response?: {
+    data?: {
+      detail?: string;
+    };
+  };
+  request?: unknown;
+  message?: string;
+}
+
+const handleError = (error: unknown) => {
+  const axiosError = error as AxiosErrorType;
+  if (axiosError.response) {
+    throw new Error(axiosError.response.data?.detail || 'Error en la solicitud');
+  } else if (axiosError.request) {
     throw new Error('No se pudo conectar con el servidor');
   } else {
-    throw new Error(error.message || 'Error desconocido');
+    throw new Error(axiosError.message || 'Error desconocido');
   }
 };
 

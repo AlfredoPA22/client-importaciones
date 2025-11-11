@@ -133,7 +133,8 @@ function ClientForm() {
 
     // Validar todos los campos
     Object.keys(formData).forEach((key) => {
-      const error = validateField(key, formData[key as keyof ClientCreate] || '');
+      const value = formData[key as keyof ClientCreate];
+      const error = validateField(key, value || '');
       if (error) {
         newErrors[key as keyof ValidationErrors] = error;
       }
@@ -194,21 +195,21 @@ function ClientForm() {
       if (isEdit && id) {
         const updateData: ClientUpdate = {
           name: formData.name.trim(),
-          email: formData.email.trim() || undefined,
-          phone: formData.phone.trim() || undefined,
-          address: formData.address.trim() || undefined,
-          company: formData.company.trim() || undefined,
-          notes: formData.notes.trim() || undefined,
+          email: (formData.email || '').trim() || undefined,
+          phone: (formData.phone || '').trim() || undefined,
+          address: (formData.address || '').trim() || undefined,
+          company: (formData.company || '').trim() || undefined,
+          notes: (formData.notes || '').trim() || undefined,
         };
         await clientsApi.update(id, updateData);
       } else {
         const createData: ClientCreate = {
           name: formData.name.trim(),
-          email: formData.email.trim() || undefined,
-          phone: formData.phone.trim() || undefined,
-          address: formData.address.trim() || undefined,
-          company: formData.company.trim() || undefined,
-          notes: formData.notes.trim() || undefined,
+          email: (formData.email || '').trim() || undefined,
+          phone: (formData.phone || '').trim() || undefined,
+          address: (formData.address || '').trim() || undefined,
+          company: (formData.company || '').trim() || undefined,
+          notes: (formData.notes || '').trim() || undefined,
         };
         await clientsApi.create(createData);
       }
@@ -362,7 +363,7 @@ function ClientForm() {
               <span className="error-message"> - {errors.notes}</span>
             )}
             <span className="char-count">
-              {formData.notes.length}/500
+              {(formData.notes || '').length}/500
             </span>
           </label>
           <textarea
