@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import CarsList from './pages/CarsList';
 import CarForm from './pages/CarForm';
 import CarDetail from './pages/CarDetail';
@@ -8,18 +8,9 @@ import ClientDetail from './pages/ClientDetail';
 import ImportsList from './pages/ImportsList';
 import ImportForm from './pages/ImportForm';
 import ImportDetail from './pages/ImportDetail';
-import ShareView from './pages/ShareView';
 import './App.css';
 
 function Navbar() {
-  const location = useLocation();
-  const isShareView = location.pathname.startsWith('/share/');
-
-  // No mostrar navbar en la vista pública de compartir
-  if (isShareView) {
-    return null;
-  }
-
   return (
     <nav className="navbar">
       <div className="nav-container">
@@ -35,13 +26,10 @@ function Navbar() {
 }
 
 function AppContent() {
-  const location = useLocation();
-  const isShareView = location.pathname.startsWith('/share/');
-
   return (
     <div className="app">
       <Navbar />
-      <main className={isShareView ? "share-main-content" : "main-content"}>
+      <main className="main-content">
         <Routes>
           <Route path="/" element={<ImportsList />} />
           
@@ -63,8 +51,6 @@ function AppContent() {
           <Route path="/imports/:id" element={<ImportDetail />} />
           <Route path="/imports/:id/edit" element={<ImportForm />} />
           
-          {/* Share Route (Public) */}
-          <Route path="/share/:token" element={<ShareView />} />
         </Routes>
       </main>
     </div>

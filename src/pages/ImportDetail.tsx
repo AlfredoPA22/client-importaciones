@@ -8,6 +8,17 @@ import ImageUploader from '../components/ImageUploader';
 import ImageGallery from '../components/ImageGallery';
 import './ImportDetail.css';
 
+const getShareBaseUrl = (): string => {
+  const envUrl = import.meta.env.VITE_SHARE_BASE_URL;
+  if (envUrl && envUrl.trim().length > 0) {
+    return envUrl.replace(/\/$/, '');
+  }
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return '';
+};
+
 function ImportDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -28,6 +39,10 @@ function ImportDetail() {
       loadHistory();
     }
   }, [id]);
+
+  const shareBaseUrl = getShareBaseUrl();
+  const buildShareUrl = (tokenValue: string) =>
+    shareBaseUrl ? `${shareBaseUrl}/share/${tokenValue}` : `/share/${tokenValue}`;
 
   const loadImport = async () => {
     try {
@@ -92,7 +107,7 @@ function ImportDetail() {
       setLoadingShare(true);
       setShareError(null);
       const shareData = await shareApi.createShare(id!);
-      const fullUrl = `${window.location.origin}/share/${shareData.token}`;
+      const fullUrl = buildShareUrl(shareData.token);
       setNewShareUrl(fullUrl);
       await loadShares();
     } catch (err: any) {
@@ -400,9 +415,9 @@ function ImportDetail() {
               {shareTokens.map((token) => (
                 <div key={token.token} className="share-token-item">
                   <div className="share-token-info">
-                    <div className="share-token-url">
-                      <strong>URL:</strong> {window.location.origin}/share/{token.token}
-                    </div>
+                  <div className="share-token-url">
+                    <strong>URL:</strong> {buildShareUrl(token.token)}
+                  </div>
                     <div className="share-token-details">
                       <span>
                         <strong>Expira:</strong> {new Date(token.expires_at).toLocaleDateString()}
@@ -415,7 +430,7 @@ function ImportDetail() {
                   <div className="share-token-actions">
                     <button
                       className="btn btn-outline btn-sm"
-                      onClick={() => copyToClipboard(`${window.location.origin}/share/${token.token}`)}
+                      onClick={() => copyToClipboard(buildShareUrl(token.token))}
                     >
                       Copiar
                     </button>

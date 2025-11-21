@@ -123,22 +123,6 @@ export interface ShareCreate {
   days_valid?: number;
 }
 
-export interface PublicImport {
-  id: string;
-  car_id: string;
-  client_id: string;
-  costos_cliente: Record<string, number>; // Solo costos_cliente, NO costos_reales
-  notes?: string;
-  status: ImportStatus;
-  fecha_tentativa_entrega?: string;
-  status_history?: StatusHistoryEntry[];
-  images?: string[];
-  created_at: string;
-  updated_at: string;
-  car?: Car;
-  client?: Client;
-}
-
 export interface ImportHistory {
   history: StatusHistoryEntry[];
   current_status: ImportStatus;

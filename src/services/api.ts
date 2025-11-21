@@ -11,7 +11,6 @@ import type {
   ImportUpdate,
   ShareToken,
   ShareCreate,
-  PublicImport,
   ImportHistory,
   ImageUploadResponse,
   ImageDeleteResponse,
@@ -413,16 +412,6 @@ export const shareApi = {
   createShare: async (importId: string, shareData?: ShareCreate): Promise<ShareToken> => {
     try {
       const response = await api.post<ShareToken>(`/imports/${importId}/share`, shareData || {});
-      return response.data;
-    } catch (error) {
-      handleError(error);
-      throw error;
-    }
-  },
-
-  getPublicImport: async (token: string): Promise<PublicImport> => {
-    try {
-      const response = await api.get<PublicImport>(`/share/${token}`);
       return response.data;
     } catch (error) {
       handleError(error);
