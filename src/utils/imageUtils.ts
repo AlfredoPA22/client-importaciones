@@ -57,43 +57,26 @@ export const validarArchivo = (file: File): ValidationResult => {
 };
 
 /**
- * Obtiene la URL completa de una imagen
- * @param imagePath - Ruta relativa de la imagen (ej: "/uploads/imports/abc123.jpg")
- * @param baseUrl - URL base del servidor (opcional, se obtiene automáticamente si no se proporciona)
- * @returns URL completa de la imagen
+ * Normaliza la URL de la imagen. Si el backend devuelve una URL absoluta (Cloudinary),
+ * se usa directamente. Si devuelve una ruta relativa, se completa usando la URL del servidor.
  */
-export const getImageUrl = (imagePath: string, baseUrl?: string): string => {
+export const getImageUrl = (imagePath: string): string => {
   if (!imagePath) {
     return '';
   }
 
-  // Si la imagen ya es una URL completa, devolverla tal cual
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath;
   }
 
-  // Si la imagen es una ruta absoluta (empieza con /), construir URL completa
-  if (imagePath.startsWith('/')) {
-    const serverUrl = baseUrl || getServerBaseUrl();
-    return `${serverUrl}${imagePath}`;
+  const baseUrl = getServerBaseUrl();
+  if (!baseUrl) {
+    return imagePath;
   }
 
-  // Si es una ruta relativa, asumir que está en /uploads/imports/
-  const serverUrl = baseUrl || getServerBaseUrl();
-  return `${serverUrl}/uploads/imports/${imagePath}`;
-};
-
-/**
- * Obtiene el nombre de archivo desde una ruta de imagen
- * @param imagePath - Ruta de la imagen (ej: "/uploads/imports/abc123.jpg")
- * @returns Nombre del archivo (ej: "abc123.jpg")
- */
-export const getFilenameFromPath = (imagePath: string): string => {
-  if (!imagePath) {
-    return '';
-  }
-  // Extraer el nombre del archivo de la ruta
-  return imagePath.split('/').pop() || '';
+  const normalizedBase = baseUrl.replace(/\/$/, '');
+  const normalizedPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  return `${normalizedBase}${normalizedPath}`;
 };
 
 /**

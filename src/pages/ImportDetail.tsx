@@ -145,9 +145,9 @@ function ImportDetail() {
     }
   };
 
-  const handleDeleteImage = async (filename: string) => {
+  const handleDeleteImage = async (imageIndex: number) => {
     try {
-      await importsApi.deleteImage(id!, filename);
+      await importsApi.deleteImage(id!, imageIndex);
       // Recargar la importación para obtener las imágenes actualizadas
       await loadImport();
     } catch (err: any) {

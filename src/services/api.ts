@@ -396,9 +396,9 @@ export const importsApi = {
     }
   },
 
-  deleteImage: async (id: string, filename: string): Promise<ImageDeleteResponse> => {
+  deleteImage: async (id: string, imageIndex: number): Promise<ImageDeleteResponse> => {
     try {
-      const response = await api.delete<ImageDeleteResponse>(`/imports/${id}/images/${filename}`);
+      const response = await api.delete<ImageDeleteResponse>(`/imports/${id}/images/${imageIndex}`);
       return response.data;
     } catch (error) {
       handleError(error);

@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { getImageUrl, getFilenameFromPath } from '../utils/imageUtils';
+import { getImageUrl } from '../utils/imageUtils';
 import './ImageGallery.css';
 
 interface ImageGalleryProps {
   images: string[];
-  onDelete?: (filename: string) => Promise<void>;
+  onDelete?: (index: number) => Promise<void>;
   readOnly?: boolean;
 }
 
 export default function ImageGallery({ images, onDelete, readOnly = false }: ImageGalleryProps) {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
 
   if (!images || images.length === 0) {
     return (
@@ -20,65 +20,66 @@ export default function ImageGallery({ images, onDelete, readOnly = false }: Ima
     );
   }
 
-  const handleImageClick = (imageUrl: string) => {
-    setSelectedImage(imageUrl);
+  const handleImageClick = (index: number) => {
+    setSelectedIndex(index);
   };
 
   const handleCloseLightbox = () => {
-    setSelectedImage(null);
+    setSelectedIndex(null);
   };
 
-  const handleDelete = async (imagePath: string, e: React.MouseEvent) => {
+  const handleDelete = async (imageIndex: number, e: React.MouseEvent) => {
     e.stopPropagation();
     
     if (!onDelete || readOnly) {
       return;
     }
 
-    const filename = getFilenameFromPath(imagePath);
-    if (!confirm(`¿Estás seguro de que deseas eliminar esta imagen?`)) {
+    const imageLabel = images[imageIndex] || '';
+    if (!confirm(`¿Eliminar esta imagen?\n${imageLabel}`)) {
       return;
     }
 
     try {
-      setDeleting(imagePath);
-      await onDelete(filename);
+      setDeletingIndex(imageIndex);
+      await onDelete(imageIndex);
     } catch (error) {
       console.error('Error al eliminar imagen:', error);
       alert('Error al eliminar la imagen');
     } finally {
-      setDeleting(null);
+      setDeletingIndex(null);
     }
   };
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!selectedImage) return;
-    const currentIndex = images.indexOf(selectedImage);
-    const nextIndex = (currentIndex + 1) % images.length;
-    setSelectedImage(images[nextIndex]);
+    if (selectedIndex === null) return;
+    const nextIndex = (selectedIndex + 1) % images.length;
+    setSelectedIndex(nextIndex);
   };
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!selectedImage) return;
-    const currentIndex = images.indexOf(selectedImage);
-    const prevIndex = (currentIndex - 1 + images.length) % images.length;
-    setSelectedImage(images[prevIndex]);
+    if (selectedIndex === null) return;
+    const prevIndex = (selectedIndex - 1 + images.length) % images.length;
+    setSelectedIndex(prevIndex);
   };
+
+  const currentImageUrl =
+    selectedIndex !== null ? getImageUrl(images[selectedIndex]) : null;
 
   return (
     <>
       <div className="image-gallery">
         {images.map((imagePath, index) => {
           const imageUrl = getImageUrl(imagePath);
-          const isDeleting = deleting === imagePath;
+          const isDeleting = deletingIndex === index;
 
           return (
             <div key={`${imagePath}-${index}`} className="gallery-item">
               <div
                 className="gallery-image-container"
-                onClick={() => handleImageClick(imagePath)}
+                onClick={() => handleImageClick(index)}
               >
                 <img
                   src={imageUrl}
@@ -95,7 +96,7 @@ export default function ImageGallery({ images, onDelete, readOnly = false }: Ima
                   <div className="gallery-overlay">
                     <button
                       className="btn-delete-image"
-                      onClick={(e) => handleDelete(imagePath, e)}
+                      onClick={(e) => handleDelete(index, e)}
                       title="Eliminar imagen"
                     >
                       🗑️
@@ -108,7 +109,7 @@ export default function ImageGallery({ images, onDelete, readOnly = false }: Ima
         })}
       </div>
 
-      {selectedImage && (
+      {selectedIndex !== null && currentImageUrl && (
         <div className="lightbox" onClick={handleCloseLightbox}>
           <button className="lightbox-close" onClick={handleCloseLightbox}>
             ✕
@@ -125,13 +126,13 @@ export default function ImageGallery({ images, onDelete, readOnly = false }: Ima
           )}
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
             <img
-              src={getImageUrl(selectedImage)}
+              src={currentImageUrl}
               alt="Imagen ampliada"
               className="lightbox-image"
             />
             <div className="lightbox-info">
               <span>
-                {images.indexOf(selectedImage) + 1} de {images.length}
+                {selectedIndex + 1} de {images.length}
               </span>
             </div>
           </div>
